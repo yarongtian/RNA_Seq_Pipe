@@ -26,7 +26,7 @@ process run_fastqc {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node2-bfx.medair.lcl'
+        queue 'bfxcore.q@node3-bfx.medair.lcl,bfxcore.q@node2-bfx.medair.lcl'
 
         input:
 	file a from fastqin
@@ -48,7 +48,7 @@ process run_FilterFastq {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node2-bfx.medair.lcl'
+        queue 'bfxcore.q@node3-bfx.medair.lcl,bfxcore.q@node2-bfx.medair.lcl'
 
         input:
 	
@@ -72,7 +72,7 @@ process run_adapterfilt {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node4-bfx.medair.lcl'
+        queue 'bfxcore.q@node3-bfx.medair.lcl,bfxcore.q@node4-bfx.medair.lcl'
 
 	// obs, when you have many modules you need to load ex not calling the entire path i only know node 4 that can handle it so far 
 	// obs, this trim galore will only remove the default illumina adapters
@@ -104,7 +104,7 @@ process run_Alignment {
 
         clusterOptions='-pe mpi 10'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node7-bfx.medair.lcl'
 
         input:
 	set pair_ID, file(R1), file(R2) from Adaptertrimmed
@@ -130,7 +130,7 @@ process run_qualAlignment {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node7-bfx.medair.lcl'
 
         input:
 	set pair_ID, file(bam) from Alignmentout
@@ -158,8 +158,8 @@ process run_quantification {
 
         clusterOptions='-pe mpi 5'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl'
-	queue 'bfxcore.q@node7-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node7-bfx.medair.lcl'
+
 
         input:
 	set pair_ID, file(bam) from Alignmentout2
@@ -183,8 +183,8 @@ process run_Normalization {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node2-bfx.medair.lcl'
-	queue 'bfxcore.q@node3-bfx.medair.lcl'
+        queue 'bfxcore.q@node2-bfx.medair.lcl,bfxcore.q@node3-bfx.medair.lcl'
+
 
         input:
 	set pair_ID, file(count) from quantification
