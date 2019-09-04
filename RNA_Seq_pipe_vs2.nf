@@ -40,30 +40,6 @@ process run_fastqc {
         """
 }
 
-//---------------------FilterFastq------------------------------
-
-process run_FilterFastq {
-        publishDir params.outdir, mode: 'copy', overwrite: true
-        //errorStrategy 'ignore'
-
-        clusterOptions='-pe mpi 1'
-        executor 'sge'
-        queue 'bfxcore.q@node3-bfx.medair.lcl,bfxcore.q@node2-bfx.medair.lcl'
-
-        input:
-	
-	set pair_ID, file(R1), file(R2) from read_pairs
-		       
-	output:
-	set pair_ID,"${pair_ID}_1.fastq","${pair_ID}_2.fastq" into filteredfastq
-
-        script:
-        """
-	perl /apps/bio/local/apps/prinseq/0.20.3/prinseq-lite.pl -verbose -fastq "${R1}" -fastq2 "${R2}" -out_good ${pair_ID} -out_bad null -min_qual_mean 20 -ns_max_p 10 -trim_qual_right 3 -min_len 30  -no_qual_header
-        """
-}
-
-
 //---------------------runAdapterRemoval------------------------------
 
 process run_adapterfilt {
@@ -72,7 +48,7 @@ process run_adapterfilt {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node3-bfx.medair.lcl,bfxcore.q@node4-bfx.medair.lcl'
+        queue 'bfxcore.q@node4-bfx.medair.lcl'
 
 	// obs, when you have many modules you need to load ex not calling the entire path i only know node 4 that can handle it so far 
 	// obs, this trim galore will only remove the default illumina adapters
@@ -82,7 +58,7 @@ process run_adapterfilt {
 	module 'fastqc/0.11.2'
 
         input:
-	set pair_ID, file(R1), file(R2) from filteredfastq
+	set pair_ID, file(R1), file(R2) from read_pairs
 		       
 	output:
 	set pair_ID,"${pair_ID}*val_1.fq","${pair_ID}*val_2.fq" into Adaptertrimmed
@@ -90,7 +66,7 @@ process run_adapterfilt {
 
         script:
         """
-	trim_galore --fastqc --paired "${R1}" "${R2}"
+	trim_galore --fastqc  -q 20 --length 30 --paired "${R1}" "${R2}" 
         """
 }
 
@@ -130,7 +106,7 @@ process run_qualAlignment {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node7-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl'
 
         input:
 	set pair_ID, file(bam) from Alignmentout
@@ -158,7 +134,7 @@ process run_quantification {
 
         clusterOptions='-pe mpi 5'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node7-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl'
 
 
         input:
