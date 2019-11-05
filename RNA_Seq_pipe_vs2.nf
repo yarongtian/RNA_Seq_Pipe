@@ -80,7 +80,7 @@ process run_Alignment {
 
         clusterOptions='-pe mpi 10'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node7-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node7-bfx.medair.lcl,bfxcore.q@node4-bfx.medair.lcl,bfx_short.q@node1-bfx.medair.l'
 
         input:
 	set pair_ID, file(R1), file(R2) from Adaptertrimmed
@@ -106,7 +106,7 @@ process run_qualAlignment {
 
         clusterOptions='-pe mpi 1'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl,bfx_short.q@node1-bfx.medair.l,bfxcore.q@node4-bfx.medair.lcl'
 
         input:
 	set pair_ID, file(bam) from Alignmentout
@@ -126,7 +126,7 @@ process run_qualAlignment {
 //---------------------runQuantification------------------------------
 
 
-// obs very important than if you are using a different strand library you need to change here, default is stranded reverse! 
+// obs very important than if you are using a different strand library you need to change here, default is stranded reverse!  P flag is for calculating the reads as fragments and not as reads 
 
 process run_quantification {
         publishDir params.outdir, mode: 'copy', overwrite: true
@@ -134,7 +134,7 @@ process run_quantification {
 
         clusterOptions='-pe mpi 5'
         executor 'sge'
-        queue 'bfxcore.q@node6-bfx.medair.lcl'
+        queue 'bfxcore.q@node6-bfx.medair.lcl,bfxcore.q@node4-bfx.medair.lcl,bfx_short.q@node1-bfx.medair.l'
 
 
         input:
@@ -146,7 +146,7 @@ process run_quantification {
 
         script:
         """
-	/apps/bio/software/subread/1.6.4/bin/featureCounts -a ${referenceannotation} -T 5 -s 2 -g gene_name -t exon -o ${pair_ID}_featureCount $bam
+	/apps/bio/software/subread/1.6.4/bin/featureCounts -a ${referenceannotation} -T 5 -s 2 -g gene_name -t exon -p -o ${pair_ID}_featureCount $bam
         """
 }
 
